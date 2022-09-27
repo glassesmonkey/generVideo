@@ -8,23 +8,43 @@ from tkinter import filedialog
 import numpy
 from numpy import *
 
-def selectRandomVideo(names,videonum):#随机选择一定数量的文件
-    return numpy.random.choice(names,videonum,replace=False)
+def selectRandomVideo(names,videonum,video_require_dur):#随机选择一定数量的文件
+    i=0
+    s=[]
+    while i < videonum: #循环取 videonum 个 大于 video_dur 的视频
+        randomfile = numpy.random.choice(names,1,replace=False)[0]
+        names.remove(randomfile)
+        print("randomfile is :"+randomfile)
+        random_file_path = os.path.join(path,randomfile)
+        randomvideo = VideoFileClip(random_file_path)
+        if randomvideo.duration > video_require_dur: #判断文件时长，如果大于20s，则加入数组，小于20s则删除源文件
+            print("video dur is: ")
+            print('%f' % randomvideo.duration)
+            s.append(randomfile)            
+            i = i + 1
+        else:
+            print("the file dur is too short,delete file."+randomvideo.duration)
+            os.remove(random_file_path)
+    return s
 
-def editorMov(files,path_new): #编辑视频文件，先裁剪拼接，再加速静音
+def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先裁剪拼接，再加速静音
+    cut_out_time = dur_time/2 * accelerate_num
     cut_video = []
     for file in files:
         file_path = os.path.join(path,file)#把待处理文件凭借上绝对路径
         au = VideoFileClip(file_path)
-        #au = au.subclip(au.duration/2-10,au.duration/2+10) #从中间裁剪出20秒
+        print("au.duration/2-10 = ")
+        print(au.duration/2-10)
+        print("au.duration/2+10 = ")
+        print(au.duration/2+10)
+        au = au.subclip(au.duration/2-cut_out_time,au.duration/2+cut_out_time) #从中间裁剪出20秒
         cut_video.append(au)
     print("cut video:")
     print(cut_video)
-    new_video = concatenate_videoclips(cut_video,method="compose")
-    # merge_video.write_videofile(path_new +'/jiasuqian'+"result.mp4")
-    # new_video = VideoFileClip(path_new +'/jiasuqian'+"result.mp4")
-    result_video = new_video.fl_time(lambda t:  1.4*t, apply_to=['mask', 'audio'])
-    result_video = result_video.set_duration(new_video.duration/1.4)
+    new_video = concatenate_videoclips(cut_video,method="compose")#拼接
+    result_video = new_video.fl_time(lambda t:  accelerate_num*t, apply_to=['mask', 'audio'])
+    result_video = result_video.set_duration(new_video.duration/accelerate_num)#加速1.4倍
+    result_video = result_video.without_audio() #静音
     result_video.write_videofile(path_new+'/'+"result.mp4")#将处理好的文件写到新文件夹中
 
 #获取源文件的路径
@@ -45,7 +65,7 @@ for file in files: #遍历文件夹
         
 print("筛选出mp3和mp4")
 print(s)
-s1 = selectRandomVideo(s,3)
 print("随机选3个文件")
+s1=selectRandomVideo(s,3,25)
 print(s1) #打印结果
-editorMov(s1,path_new)
+editorMov(s1,path_new,20,1.4)
