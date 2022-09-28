@@ -47,6 +47,12 @@ def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先
     result_video = result_video.without_audio() #静音
     pathnew = os.path.join(path_new,ranstr(8)+".mp4")
     result_video.write_videofile(pathnew)#将处理好的文件写到新文件夹中
+    #删除用过的文件
+    for file in files:
+        file_path = os.path.join(path,file)#把待处理文件拼接上绝对路径
+        os.remove(file_path)
+        print("完事，删除用过的文件")
+
 
 def ranstr(num):#返回一个随机字串，用于生成随机文件名
     H = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
@@ -62,17 +68,20 @@ root.withdraw()
 path = filedialog.askdirectory()
 #设定输出文件的路径
 path_new = filedialog.askdirectory()
-#读取目录下所有文件，筛选4个文件
-#将文件裁剪，拼接
-#将拼接的文件加速，静音
-files= os.listdir(path) #得到文件夹下的所有文件名称
-#print(files)
-s = []
-for file in files: #遍历文件夹
-    if os.path.splitext(file)[-1] in ['.mp3','.mp4']: #判断是否是音频，是音频才打开
-        s.append(file)#把待处理文件塞进数组
-        
-print("筛选出mp3和mp4:",s)
-s1=selectRandomVideo(s,3,25)
-print("随机选择三个文件",s1)
-editorMov(s1,path_new,20,1.4)
+
+file_num = 3 #拼接用的文件数量
+video_min_dur = 25
+while 1:
+    files= os.listdir(path) #得到文件夹下的所有文件名称
+    s = []
+    for file in files: #遍历文件夹
+        if os.path.splitext(file)[-1] in ['.mp3','.mp4']: #判断是否是音频，是音频才打开
+            s.append(file)#把待处理文件塞进数组
+    if  len(s) >= file_num: #当列表中的文件大于等于三个时才操作
+        print("筛选出mp3和mp4:",s)
+        s1=selectRandomVideo(s,file_num,video_min_dur)
+        print("随机选择三个文件",s1)
+        editorMov(s1,path_new,20,1.4)
+    else:
+        print("可操作文件少于",file_num,"个，程序退出")
+        break
