@@ -23,6 +23,7 @@ def selectRandomVideo(names,videonum,video_require_dur):#循环取 videonum 个 
             randomvideo.close()
             os.remove(random_file_path)
             continue
+        
         #判断文件时长，如果大于20s，则加入数组，小于20s则删除源文件。还需要判断分辨率，不满足的也删除
         if randomvideo.duration > video_require_dur and randomvideo.w >= 640 and randomvideo.h >= 480: 
             print("video dur is: ",'%f' % randomvideo.duration)
