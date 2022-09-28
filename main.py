@@ -16,7 +16,13 @@ def selectRandomVideo(names,videonum,video_require_dur):#循环取 videonum 个 
         names.remove(randomfile)
         print("randomfile is :"+randomfile)
         random_file_path = os.path.join(path,randomfile)
-        randomvideo = VideoFileClip(random_file_path)
+        try:
+            randomvideo = VideoFileClip(random_file_path)
+        except KeyError:
+            print('keyerror')
+            randomvideo.close()
+            os.remove(random_file_path)
+            continue
         #判断文件时长，如果大于20s，则加入数组，小于20s则删除源文件。还需要判断分辨率，不满足的也删除
         if randomvideo.duration > video_require_dur and randomvideo.w >= 640 and randomvideo.h >= 480: 
             print("video dur is: ",'%f' % randomvideo.duration)
@@ -82,7 +88,7 @@ while 1:
     files= os.listdir(path) #得到文件夹下的所有文件名称
     s = []
     for file in files: #遍历文件夹
-        if os.path.splitext(file)[-1] in ['.mp3','.mp4']: #判断是否是音频，是音频才打开
+        if os.path.splitext(file)[-1] in ['.mp4']: #判断是否是音频，是音频才打开
             s.append(file)#把待处理文件塞进数组
     if  len(s) >= file_num: #当列表中的文件大于等于三个时才操作
         print("筛选出mp3和mp4:",s)
