@@ -28,6 +28,7 @@ def selectRandomVideo(names,videonum,video_require_dur):#循环取 videonum 个 
             print('randomvideo.w:',randomvideo.w)           
             print('randomvideo.h:',randomvideo.h)
             os.remove(random_file_path)#直接删除时长不足的视频
+        randomvideo.reader.close() #释放内存，解除文件占用
     return s
 
 def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先裁剪拼接，再加速静音
@@ -47,6 +48,10 @@ def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先
     result_video = result_video.without_audio() #静音
     pathnew = os.path.join(path_new,ranstr(8)+".mp4")
     result_video.write_videofile(pathnew)#将处理好的文件写到新文件夹中
+
+    for cutfile in cut_video:
+        cutfile.reader.close()#释放内存，解除文件占用
+        
     #删除用过的文件
     for file in files:
         file_path = os.path.join(path,file)#把待处理文件拼接上绝对路径
