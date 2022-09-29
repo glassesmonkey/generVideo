@@ -8,7 +8,36 @@ from tkinter import filedialog
 import numpy
 from numpy import *
 
-def selectRandomVideo(names,videonum,video_require_dur):#循环取 videonum 个 视频时长大于 video_require_dur 的视频
+def get_source_path():
+    path = filedialog.askdirectory()
+    entry1.delete(0, "end")
+    entry1.insert(0,path)
+
+def get_new_path():
+    path = filedialog.askdirectory()
+    entry2.delete(0, "end")
+    entry2.insert(0,path)
+
+def start():
+    main(entry1.get(),entry2.get())
+
+def main(path,path_new):
+    while 1:
+        files= os.listdir(path) #得到文件夹下的所有文件名称
+        s = []
+        for file in files: #遍历文件夹
+            if os.path.splitext(file)[-1] in ['.mp4']: #判断是否是音频，是音频才打开
+                s.append(file)#把待处理文件塞进数组
+        if  len(s) >= file_num: #当列表中的文件大于等于三个时才操作
+            print("筛选出mp3和mp4:",s)
+            s1=selectRandomVideo(s,file_num,video_min_dur,path)
+            print("随机选择三个文件",s1)
+            editorMov(s1,path_new,20,1.4,path)
+        else:
+            print("可操作文件少于",file_num,"个，程序退出")
+            break
+
+def selectRandomVideo(names,videonum,video_require_dur,path):#循环取 videonum 个 视频时长大于 video_require_dur 的视频
     i=0
     s=[]
     while i < videonum: #循环取 videonum 个 大于 video_dur 的视频
@@ -40,7 +69,7 @@ def selectRandomVideo(names,videonum,video_require_dur):#循环取 videonum 个 
         
     return s
 
-def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先裁剪拼接，再加速静音
+def editorMov(files,path_new,dur_time,accelerate_num,path): #编辑视频文件，先裁剪拼接，再加速静音
     cut_out_time = dur_time/2 * accelerate_num
     cut_video = []
     for file in files:
@@ -65,7 +94,7 @@ def editorMov(files,path_new,dur_time,accelerate_num): #编辑视频文件，先
     for file in files:
         file_path = os.path.join(path,file)#把待处理文件拼接上绝对路径
         os.remove(file_path)
-        print("完事，删除用过的文件")
+        print("完事，删除用过的文件，路径：",file_path)
 
 
 def ranstr(num):#返回一个随机字串，用于生成随机文件名
@@ -76,26 +105,33 @@ def ranstr(num):#返回一个随机字串，用于生成随机文件名
         salt =salt + random.choice(result1)
 
     return salt
-#获取源文件的路径
-root = tk.Tk()
-root.withdraw()
-path = filedialog.askdirectory()
-#设定输出文件的路径
-path_new = filedialog.askdirectory()
 
+
+
+#获取源文件的路径
 file_num = 3 #拼接用的文件数量
 video_min_dur = 25
-while 1:
-    files= os.listdir(path) #得到文件夹下的所有文件名称
-    s = []
-    for file in files: #遍历文件夹
-        if os.path.splitext(file)[-1] in ['.mp4']: #判断是否是音频，是音频才打开
-            s.append(file)#把待处理文件塞进数组
-    if  len(s) >= file_num: #当列表中的文件大于等于三个时才操作
-        print("筛选出mp3和mp4:",s)
-        s1=selectRandomVideo(s,file_num,video_min_dur)
-        print("随机选择三个文件",s1)
-        editorMov(s1,path_new,20,1.4)
-    else:
-        print("可操作文件少于",file_num,"个，程序退出")
-        break
+root_window = tk.Tk()
+root_window.title('glassesmonkey')
+root_window.geometry('450x300')
+
+labe1 = tk.Label(root_window,text="源文件路径")
+labe2 = tk.Label(root_window,text="处理后文件路径")
+labe1.grid(row=0)
+labe2.grid(row=1)
+# 添加按钮，以及按钮的文本，并通过command 参数设置关闭窗口的功能
+entry1 = tk.Entry(root_window)
+
+entry2 = tk.Entry(root_window)
+
+entry1.grid(row=0,column=1)
+entry2.grid(row=1,column=1)
+
+button1=tk.Button(root_window,text="选择",command=get_source_path)
+button2=tk.Button(root_window,text="选择",command=get_new_path)
+button3=tk.Button(root_window,text="启动！",command=start)
+button1.grid(row=0,column=2)
+button2.grid(row=1,column=2)
+button3.grid(row=2,column=2)
+root_window.mainloop()
+
