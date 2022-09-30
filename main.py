@@ -23,7 +23,12 @@ def start():
 
 def main(path,path_new):
     while 1:
-        files= os.listdir(path) #得到文件夹下的所有文件名称
+        #files= os.listdir(path) #得到文件夹下的所有文件名称
+        files= os.walk(path)
+        a = []
+        for file_path,dir_list,file_list in files:  
+            for file_name in file_list:  
+                a.append(os.path.join(file_path, file_name))
         s = []
         for file in files: #遍历文件夹
             if os.path.splitext(file)[-1] in ['.mp4']: #判断是否是音频，是音频才打开
