@@ -30,7 +30,7 @@ def main(path,path_new):
             for file_name in file_list:  
                 a.append(os.path.join(file_path, file_name))
         s = []
-        for file in files: #遍历文件夹
+        for file in a: #遍历文件夹
             if os.path.splitext(file)[-1] in ['.mp4']: #判断是否是音频，是音频才打开
                 s.append(file)#把待处理文件塞进数组
         if  len(s) >= file_num: #当列表中的文件大于等于三个时才操作
@@ -74,7 +74,7 @@ def selectRandomVideo(names,videonum,video_require_dur,path):#循环取 videonum
         
     return s
 
-def editorMov(files,path_new,dur_time,accelerate_num,path): #编辑视频文件，先裁剪拼接，再加速静音
+def editorMov(files,path_new,dur_time,accelerate_num,path): #编辑视频文件，先裁剪拼接，再加速静音，dur_time=时长，accelerate_num=加速倍数
     cut_out_time = dur_time/2 * accelerate_num
     cut_video = []
     for file in files:
@@ -114,7 +114,7 @@ def ranstr(num):#返回一个随机字串，用于生成随机文件名
 
 
 #获取源文件的路径
-file_num = 3 #拼接用的文件数量
+file_num = 12 #拼接用的文件数量
 video_min_dur = 25
 root_window = tk.Tk()
 root_window.title('glassesmonkey')
